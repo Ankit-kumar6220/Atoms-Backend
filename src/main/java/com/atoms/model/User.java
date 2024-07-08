@@ -42,7 +42,7 @@ public class User {
 	//we don't want JSON for this role(it will not create Servlet Dependency ) 
 	@OneToMany(cascade=CascadeType.ALL,fetch = FetchType.EAGER,mappedBy = "user")
 	@JsonIgnore 
-	private Set<UserRole> userRoles=new HashSet<>();
+	private Set<UserRole> userRoles=new HashSet<UserRole>();
 	
 	
 	public User() {

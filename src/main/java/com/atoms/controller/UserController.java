@@ -14,10 +14,13 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.atoms.dto.UserProfile;
 import com.atoms.exceptions.ErrorSavingObjectInDatabase;
 import com.atoms.exceptions.UserAlreadyExist;
 import com.atoms.exceptions.UserIsBlocked;
 import com.atoms.exceptions.UserIsInactive;
+import com.atoms.exceptions.UserNotFoundException;
+import com.atoms.exceptions.ValidationException;
 import com.atoms.model.User;
 import com.atoms.service.UserService;
 
@@ -27,75 +30,119 @@ import com.atoms.service.UserService;
 public class UserController {
 
 	final static Logger LOGGER = Logger.getLogger(UserController.class.getName());
-	
+
 	@Autowired
 	private UserService userService;
-	
-	//creating user
-	@PostMapping("/")
-	public ResponseEntity<?> createUser(@RequestBody User user){	
-		//setting that the new user is Normal user only
 
-		if(user!=null) {
-			 try {
-				this.userService.createUser(user);
-			} 
-			 catch(UserAlreadyExist e) {
-				LOGGER.error("UserAuthController Error UserAlreadyExist-"+user.getEmail());
-				return ResponseEntity.status(HttpStatus.FOUND)
-									.body(e.getMessage());
-			}
-			  catch(UserIsBlocked e) {
-			 LOGGER.error("UserAuthController Error UserIsBlocked-"+user.getEmail());
-			 return ResponseEntity.status(HttpStatus.FOUND) .body(e.getMessage()); 
-			 }
-			 
-			 catch(UserIsInactive e) {
-				LOGGER.error("UserAuthController Error UserIsInactive-"+user.getEmail());
-				return ResponseEntity.status(HttpStatus.FOUND)
-									.body(e.getMessage());
-			} catch (ErrorSavingObjectInDatabase e) {
-				LOGGER.error("ErrorSavingObjectInDatabase-"+user.getEmail());
-				return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-									.body(e.getMessage());
+	// creating user
+	@PostMapping("/")
+	public ResponseEntity<?> createUser(@RequestBody User user) {
+		UserProfile newUser=null;
+		if (user != null) {
+			try {
+				LOGGER.info("Inside UserController createUser.");
+				newUser=this.userService.createUser(user);
 				
+			} catch (ValidationException e) {
+				LOGGER.error("UserAuthController Error Validation Exception for-" + user.getEmail());
+				return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+			} catch (UserAlreadyExist e) {
+				LOGGER.error("UserAuthController Error UserAlreadyExist-" + user.getEmail());
+				return ResponseEntity.status(HttpStatus.FOUND).body(e.getMessage());
+			} catch (UserIsBlocked e) {
+				LOGGER.error("UserAuthController Error UserIsBlocked-" + user.getEmail());
+				return ResponseEntity.status(HttpStatus.FOUND).body(e.getMessage());
+			} catch (UserIsInactive e) {
+				LOGGER.error("UserAuthController Error UserIsInactive-" + user.getEmail());
+				return ResponseEntity.status(HttpStatus.FOUND).body(e.getMessage());
+			} catch (ErrorSavingObjectInDatabase e) {
+				LOGGER.error("ErrorSavingObjectInDatabase-" + user.getEmail());
+				return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+
 			} catch (Exception e) {
-				LOGGER.error("Some Exception Occurs-"+user.getEmail());
-				return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-									.body(e.getMessage());
+				LOGGER.error("Some Exception Occurs-");
+				return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
 			}
 		}
-		return ResponseEntity.status(HttpStatus.CREATED)
-				.body(user);
-		
+		LOGGER.info("Inside UserController createUser SUCCESS.");
+		return ResponseEntity.status(HttpStatus.CREATED).body(newUser);
+
 	}
-	
+
 	@GetMapping("/{username}")
 	public ResponseEntity<?> getUser(@PathVariable("username") String username) {
-		
-		if(username!= null) {
-		       User user=this.userService.getUser(username);
-			if(user !=null) {
-				 return ResponseEntity.status(HttpStatus.OK)
-						.body(user);
+		UserProfile userProfile = null;
+		LOGGER.info("Inside UserController getUser");
+		if (username != null) {
+			try {
+				
+				userProfile = this.userService.getUser(username);
+				
+				LOGGER.info("Inside UserController getUser SUCCESS");
+				return ResponseEntity.status(HttpStatus.OK).body(userProfile);
+			} catch (UserNotFoundException e) {
+				LOGGER.error("User Not Found -" + username);
+				return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+			} catch (Exception e) {
+				LOGGER.error("Some Exception Occurs-");
+				return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
 			}
-			return ResponseEntity.status(HttpStatus.NOT_FOUND)
-					.body("User Not Found");
+
+		} else {
+			LOGGER.info("Inside UserController getUser SUCCESS.");
+			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Username is Null !!");
 		}
-		return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-				.body("User Name is Null !!");
-		
 	}
-	
+
 	@DeleteMapping("/{userId}")
-	public void deleteUser(@PathVariable("userID") Long userId) {
-		 this .userService.deleteUser(userId);
-		
+	public ResponseEntity<String> deleteUser(@PathVariable("userID") Long userId) {
+
+		try {
+
+			this.userService.deleteUser(userId);
+			LOGGER.info("Inside UserController deleteUser SUCCESS");
+			return ResponseEntity.status(HttpStatus.OK).body("User is Deleted.");
+		} catch (ValidationException e) {
+			LOGGER.error("UserAuthController Error Validation Exception for-" + userId);
+			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+		} catch (Exception e) {
+			LOGGER.error("Some Exception Occurs- for-" + userId);
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+		}
+
 	}
-	
+
 	@PutMapping("/updateuser")
-	public void updateUser(@RequestBody User user) {
-		this.userService.updateUser(user);
+	public ResponseEntity<?> updateUser(@RequestBody User user) {
+		UserProfile userProfile = null;
+
+		if (user != null) {
+			LOGGER.info("Inside UserController updateUser");
+			try {
+				userProfile = this.userService.updateUser(user);
+				
+				LOGGER.info("Inside UserController updateUser SUCCESS");
+				return ResponseEntity.status(HttpStatus.OK).body(userProfile);
+
+			} catch (ValidationException e) {
+				LOGGER.error("UserController Error Validation Exception for-" + user.getEmail());
+				return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+			} catch (UserNotFoundException e) {
+				LOGGER.error("UserController Error User Not Found Exception for-" + user.getEmail());
+				return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+			} catch (ErrorSavingObjectInDatabase e) {
+				LOGGER.error("UserController Error for Saving Object In Database-" + user.getEmail());
+				return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+
+			}catch (Exception e) {
+				LOGGER.error("Some Exception Occurs-");
+				return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+			}
+
+		} else {
+			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("User is Null !!");
+		}
+
 	}
-	
+
 }

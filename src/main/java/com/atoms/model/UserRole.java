@@ -13,52 +13,51 @@ public class UserRole {
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
 	private Long userRoleId;
-	
-	//user
-		@ManyToOne(fetch = FetchType.EAGER)
-		private User user;
-		
-	//role
-		@ManyToOne
-		private Role role;
 
-		
-		//Parameterized Constructor
-		public UserRole(Long userRoleId, User user, Role role) {
-			super();
-			this.userRoleId = userRoleId;
-			this.user = user;
-			this.role = role;
-		}
-        
-		//Default Constructor
-		public UserRole() {
-			super();
-		}
+	// user
+	@ManyToOne(fetch = FetchType.EAGER)
+	private User user;
 
-		//Getter & Setter
-		public Long getUserRoleId() {
-			return userRoleId;
-		}
+	// role
+	@ManyToOne
+	private Role role;
 
-		public void setUserRoleId(Long userRoleId) {
-			this.userRoleId = userRoleId;
-		}
+	// Parameterized Constructor
+	public UserRole(Long userRoleId, User user, Role role) {
+		super();
+		this.userRoleId = userRoleId;
+		this.user = user;
+		this.role = role;
+	}
 
-		public User getUser() {
-			return user;
-		}
+	// Default Constructor
+	public UserRole() {
+		super();
+	}
 
-		public void setUser(User user) {
-			this.user = user;
-		}
+	// Getter & Setter
+	public Long getUserRoleId() {
+		return userRoleId;
+	}
 
-		public Role getRole() {
-			return role;
-		}
+	public void setUserRoleId(Long userRoleId) {
+		this.userRoleId = userRoleId;
+	}
 
-		public void setRole(Role role) {
-			this.role = role;
-		}
-		
+	public User getUser() {
+		return user;
+	}
+
+	public void setUser(User user) {
+		this.user = user;
+	}
+
+	public Role getRole() {
+		return role;
+	}
+
+	public void setRole(Role role) {
+		this.role = role;
+	}
+
 }

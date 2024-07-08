@@ -22,7 +22,7 @@ public class AtomsApplication  {
 	public static void main(String[] args) {
 		SpringApplication.run(AtomsApplication.class, args);
 		
-		System.out.println("Starting code");
+		System.out.println("Atoms is active.....");
 
 		
 	}

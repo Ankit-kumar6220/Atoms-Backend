@@ -20,7 +20,7 @@ public class Role {
 	private String roleName;
 	
 	@OneToMany(cascade=CascadeType.ALL,fetch = FetchType.LAZY,mappedBy = "role")
-	private Set<UserRole> userRoles = new HashSet<>();
+	private Set<UserRole> userRoles = new HashSet();
 	
 
 	public Role(Long roleId, String roleName) {

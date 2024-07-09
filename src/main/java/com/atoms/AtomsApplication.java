@@ -1,16 +1,10 @@
 package com.atoms;
 
-import java.util.HashSet;
-import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
-import com.atoms.model.Role;
-import com.atoms.model.User;
-import com.atoms.model.UserRole;
 import com.atoms.service.UserService;
 
 @SpringBootApplication
